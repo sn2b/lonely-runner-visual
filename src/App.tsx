@@ -89,6 +89,7 @@ function App() {
   const [runners, setRunners] = useKV('runners', [] as Runner[])
   const [lonelinessThreshold, setLonelinessThreshold] = useState(1/3)
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
+  const [animationSpeed, setAnimationSpeed] = useKV('animation-speed', 1.0)
   const animationRef = useRef<number>()
   const lastTimeRef = useRef<number>(0)
 
@@ -127,7 +128,7 @@ function App() {
       setRunners(currentRunners => {
         const updatedRunners = currentRunners.map(runner => ({
           ...runner,
-          angle: (runner.angle + runner.speed * deltaTime * 60) % 360
+          angle: (runner.angle + runner.speed * deltaTime * 60 * animationSpeed) % 360
         }))
 
         // Calculate loneliness for each runner
@@ -187,7 +188,7 @@ function App() {
       }
       lastTimeRef.current = 0
     }
-  }, [isPlaying, lonelinessThreshold])
+  }, [isPlaying, lonelinessThreshold, animationSpeed])
 
   const updateRunnerSpeed = (runnerId: number, speed: number) => {
     setRunners(currentRunners => 
@@ -536,6 +537,35 @@ function App() {
                   >
                     <Plus size={14} />
                   </Button>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Animation Speed */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium">Animation Speed</label>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-muted-foreground">Slower</span>
+                    <Badge variant="outline" className="text-xs">
+                      {animationSpeed === 0 ? 'Paused' : `${animationSpeed.toFixed(1)}x`}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">Faster</span>
+                  </div>
+                  <Slider
+                    value={[animationSpeed]}
+                    onValueChange={([value]) => setAnimationSpeed(value)}
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>0x</span>
+                    <span>1x</span>
+                    <span>5x</span>
+                  </div>
                 </div>
               </div>
 
