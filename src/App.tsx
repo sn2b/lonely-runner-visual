@@ -13,6 +13,9 @@ interface Runner {
   angle: number
   color: string
   isLonely: boolean
+  lonelyStartTime: number | null
+  totalLonelyTime: number
+  currentLonelyDuration: number
 }
 
 const COLORS = [
@@ -44,7 +47,10 @@ function App() {
         speed: existingRunner?.speed || (i + 1) * 0.5,
         angle: existingRunner?.angle || (i * (360 / runnerCount)),
         color: COLORS[i % COLORS.length],
-        isLonely: false
+        isLonely: false,
+        lonelyStartTime: null,
+        totalLonelyTime: existingRunner?.totalLonelyTime || 0,
+        currentLonelyDuration: 0
       })
     }
     setRunners(newRunners)
@@ -81,9 +87,36 @@ function App() {
             }
           })
 
+          const isCurrentlyLonely = minDistance >= lonelinessThreshold
+          const now = currentTime / 1000 // Convert to seconds
+          
+          let newLonelyStartTime = runner.lonelyStartTime
+          let newTotalLonelyTime = runner.totalLonelyTime
+          let newCurrentLonelyDuration = runner.currentLonelyDuration
+
+          if (isCurrentlyLonely && !runner.isLonely) {
+            // Just became lonely
+            newLonelyStartTime = now
+            newCurrentLonelyDuration = 0
+          } else if (!isCurrentlyLonely && runner.isLonely) {
+            // Just stopped being lonely
+            if (runner.lonelyStartTime !== null) {
+              const duration = now - runner.lonelyStartTime
+              newTotalLonelyTime += duration
+            }
+            newLonelyStartTime = null
+            newCurrentLonelyDuration = 0
+          } else if (isCurrentlyLonely && runner.lonelyStartTime !== null) {
+            // Still lonely, update current duration
+            newCurrentLonelyDuration = now - runner.lonelyStartTime
+          }
+
           return {
             ...runner,
-            isLonely: minDistance >= lonelinessThreshold
+            isLonely: isCurrentlyLonely,
+            lonelyStartTime: newLonelyStartTime,
+            totalLonelyTime: newTotalLonelyTime,
+            currentLonelyDuration: newCurrentLonelyDuration
           }
         })
       })
@@ -123,9 +156,16 @@ function App() {
       currentRunners.map((runner, index) => ({
         ...runner,
         angle: index * (360 / runnerCount),
-        isLonely: false
+        isLonely: false,
+        lonelyStartTime: null,
+        totalLonelyTime: 0,
+        currentLonelyDuration: 0
       }))
     )
+  }
+
+  const formatTime = (seconds: number) => {
+    return seconds.toFixed(1) + 's'
   }
 
   return (
@@ -138,7 +178,7 @@ function App() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Visualization */}
           <Card className="lg:col-span-2">
             <CardHeader>
@@ -248,6 +288,55 @@ function App() {
             </CardContent>
           </Card>
 
+          {/* Statistics Panel */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Loneliness Statistics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Currently lonely:</span>
+                  <Badge variant="secondary">
+                    {runners.filter(r => r.isLonely).length} / {runners.length}
+                  </Badge>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-2">
+                  <span className="text-sm font-medium">Individual Times:</span>
+                  {runners.map((runner) => {
+                    const totalTime = runner.totalLonelyTime + (runner.isLonely ? runner.currentLonelyDuration : 0)
+                    return (
+                      <div key={runner.id} className="flex justify-between items-center text-xs">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: runner.color }}
+                          />
+                          <span>Runner {runner.id + 1}</span>
+                        </div>
+                        <span className="font-mono">{formatTime(totalTime)}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                <Separator />
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Total collective:</span>
+                  <span className="font-mono text-sm">
+                    {formatTime(runners.reduce((sum, r) => 
+                      sum + r.totalLonelyTime + (r.isLonely ? r.currentLonelyDuration : 0), 0
+                    ))}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Controls */}
           <Card>
             <CardHeader>
@@ -314,6 +403,21 @@ function App() {
                       step={0.1}
                       className="w-full"
                     />
+                    {/* Loneliness timing info */}
+                    <div className="text-xs text-muted-foreground space-y-1">
+                      <div className="flex justify-between">
+                        <span>Current lonely:</span>
+                        <span className="font-mono">
+                          {runner.isLonely ? formatTime(runner.currentLonelyDuration) : '0.0s'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Total lonely:</span>
+                        <span className="font-mono">
+                          {formatTime(runner.totalLonelyTime + (runner.isLonely ? runner.currentLonelyDuration : 0))}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
