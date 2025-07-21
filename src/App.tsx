@@ -6,7 +6,7 @@ import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Play, Pause, Plus, Minus, Sparkle } from '@phosphor-icons/react'
+import { Play, Pause, Plus, Minus, Sparkle, Shuffle } from '@phosphor-icons/react'
 
 interface Runner {
   id: number
@@ -249,6 +249,20 @@ function App() {
     setSelectedPreset(null)
   }
 
+  const randomizeSpeeds = () => {
+    setRunners(currentRunners => 
+      currentRunners.map(runner => ({
+        ...runner,
+        speed: Math.random() * 20 - 10, // Random speed between -10 and 10
+        totalLonelyTime: 0,
+        currentLonelyDuration: 0,
+        isLonely: false,
+        lonelyStartTime: null
+      }))
+    )
+    clearPreset() // Clear preset when randomizing
+  }
+
   const formatTime = (seconds: number) => {
     return seconds.toFixed(1) + 's'
   }
@@ -285,6 +299,15 @@ function App() {
                     onClick={resetPositions}
                   >
                     Reset
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={randomizeSpeeds}
+                    className="flex items-center gap-2"
+                  >
+                    <Shuffle size={16} />
+                    Random
                   </Button>
                 </div>
               </CardTitle>
@@ -346,10 +369,21 @@ function App() {
                           strokeWidth="2"
                         />
                         
+                        {/* Direction indicator for negative speeds */}
+                        {runner.speed < 0 && (
+                          <path
+                            d={`M ${x-3} ${y-1} L ${x+1} ${y-1} L ${x-1} ${y-3} M ${x+1} ${y-1} L ${x-1} ${y+1}`}
+                            stroke="white"
+                            strokeWidth="1.5"
+                            fill="none"
+                            strokeLinecap="round"
+                          />
+                        )}
+                        
                         {/* Runner ID */}
                         <text
                           x={x}
-                          y={y + 1}
+                          y={runner.speed < 0 ? y + 3 : y + 1}
                           textAnchor="middle"
                           dominantBaseline="middle"
                           className="text-xs font-semibold fill-white"
@@ -367,7 +401,8 @@ function App() {
                   Loneliness threshold: <Badge variant="outline">{(lonelinessThreshold * 100).toFixed(1)}%</Badge>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  A runner is "lonely" when their closest neighbor is at least {(lonelinessThreshold * 100).toFixed(1)}% of the track away
+                  A runner is "lonely" when their closest neighbor is at least {(lonelinessThreshold * 100).toFixed(1)}% of the track away.
+                  Negative speeds indicate reverse direction.
                 </p>
               </div>
             </CardContent>
@@ -508,7 +543,18 @@ function App() {
 
               {/* Speed Controls */}
               <div className="space-y-4">
-                <label className="text-sm font-medium">Runner Speeds</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium">Runner Speeds</label>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={randomizeSpeeds}
+                    className="flex items-center gap-1 h-7 px-2 text-xs"
+                  >
+                    <Shuffle size={12} />
+                    Randomize
+                  </Button>
+                </div>
                 {runners.map((runner) => (
                   <div key={runner.id} className="space-y-2">
                     <div className="flex items-center justify-between">
@@ -527,14 +573,14 @@ function App() {
                         )}
                       </span>
                       <Badge variant="outline" className="text-xs">
-                        {runner.speed.toFixed(1)}
+                        {runner.speed >= 0 ? '+' : ''}{runner.speed.toFixed(1)}
                       </Badge>
                     </div>
                     <Slider
                       value={[runner.speed]}
                       onValueChange={([value]) => updateRunnerSpeed(runner.id, value)}
-                      min={0.1}
-                      max={3}
+                      min={-10}
+                      max={10}
                       step={0.1}
                       className="w-full"
                     />
