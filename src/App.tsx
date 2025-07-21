@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Play, Pause, Plus, Minus } from '@phosphor-icons/react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Play, Pause, Plus, Minus, Sparkle } from '@phosphor-icons/react'
 
 interface Runner {
   id: number
@@ -29,11 +30,65 @@ const COLORS = [
   'oklch(0.5 0.1 270)',   // Purple
 ]
 
+// Known mathematical configurations for the Lonely Runner Conjecture
+const PRESET_CONFIGURATIONS = {
+  'simple-2': {
+    name: 'Simple Case (n=2)',
+    description: 'Basic case with 2 runners - proven',
+    runners: 2,
+    speeds: [1.0, 2.0],
+    note: 'Two runners will always be lonely when they are diametrically opposite.'
+  },
+  'classic-3': {
+    name: 'Classic Triangle (n=3)',
+    description: 'Three runners with harmonic speeds - proven',
+    runners: 3,
+    speeds: [1.0, 2.0, 3.0],
+    note: 'Each runner becomes lonely when at least 1/3 of track away from others.'
+  },
+  'fibonacci-4': {
+    name: 'Fibonacci Series (n=4)',
+    description: 'Four runners using Fibonacci ratios - proven',
+    runners: 4,
+    speeds: [1.0, 1.6, 2.6, 4.2],
+    note: 'Speeds based on Fibonacci sequence create interesting patterns.'
+  },
+  'prime-5': {
+    name: 'Prime Numbers (n=5)',
+    description: 'Five runners with prime number speeds - proven',
+    runners: 5,
+    speeds: [1.0, 2.0, 3.0, 5.0, 7.0],
+    note: 'Using prime numbers as speed ratios demonstrates the conjecture.'
+  },
+  'harmonic-6': {
+    name: 'Harmonic Series (n=6)',
+    description: 'Six runners in harmonic progression - proven',
+    runners: 6,
+    speeds: [1.0, 1.5, 2.0, 2.5, 3.0, 3.5],
+    note: 'Evenly spaced speeds in arithmetic progression.'
+  },
+  'edge-case-7': {
+    name: 'Edge Case (n=7)',
+    description: 'Seven runners - largest proven case',
+    runners: 7,
+    speeds: [1.0, 1.4, 1.8, 2.2, 2.6, 3.0, 3.4],
+    note: 'This is the largest case that has been mathematically proven.'
+  },
+  'conjecture-8': {
+    name: 'Open Question (n=8)',
+    description: 'Eight runners - unproven territory',
+    runners: 8,
+    speeds: [1.0, 1.3, 1.6, 1.9, 2.2, 2.5, 2.8, 3.1],
+    note: 'Beyond n=7, the conjecture remains unproven but likely true.'
+  }
+}
+
 function App() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [runnerCount, setRunnerCount] = useKV('runner-count', 3)
   const [runners, setRunners] = useKV('runners', [] as Runner[])
   const [lonelinessThreshold, setLonelinessThreshold] = useState(1/3)
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
   const animationRef = useRef<number>()
   const lastTimeRef = useRef<number>(0)
 
@@ -140,6 +195,7 @@ function App() {
         runner.id === runnerId ? { ...runner, speed } : runner
       )
     )
+    clearPreset() // Clear preset when manually adjusting speeds
   }
 
   const togglePlayPause = () => {
@@ -149,6 +205,7 @@ function App() {
   const adjustRunnerCount = (delta: number) => {
     const newCount = Math.max(2, Math.min(8, runnerCount + delta))
     setRunnerCount(newCount)
+    clearPreset() // Clear preset when manually adjusting
   }
 
   const resetPositions = () => {
@@ -162,6 +219,34 @@ function App() {
         currentLonelyDuration: 0
       }))
     )
+  }
+
+  const loadPreset = (presetKey: string) => {
+    const preset = PRESET_CONFIGURATIONS[presetKey as keyof typeof PRESET_CONFIGURATIONS]
+    if (!preset) return
+
+    setSelectedPreset(presetKey)
+    setRunnerCount(preset.runners)
+    
+    // The runners will be recreated by the useEffect when runnerCount changes
+    // But we need to set the speeds after that happens
+    setTimeout(() => {
+      setRunners(currentRunners => 
+        currentRunners.map((runner, index) => ({
+          ...runner,
+          speed: preset.speeds[index] || 1.0,
+          angle: index * (360 / preset.runners),
+          isLonely: false,
+          lonelyStartTime: null,
+          totalLonelyTime: 0,
+          currentLonelyDuration: 0
+        }))
+      )
+    }, 100)
+  }
+
+  const clearPreset = () => {
+    setSelectedPreset(null)
   }
 
   const formatTime = (seconds: number) => {
@@ -343,6 +428,56 @@ function App() {
               <CardTitle>Controls</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Preset Configurations */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium flex items-center gap-2">
+                  <Sparkle size={16} className="text-accent" />
+                  Mathematical Presets
+                </label>
+                <Select value={selectedPreset || ""} onValueChange={loadPreset}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a known configuration..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(PRESET_CONFIGURATIONS).map(([key, config]) => (
+                      <SelectItem key={key} value={key}>
+                        <div className="flex flex-col items-start">
+                          <span className="font-medium">{config.name}</span>
+                          <span className="text-xs text-muted-foreground">{config.description}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {/* Show current preset info */}
+                {selectedPreset && (
+                  <div className="bg-muted/30 p-3 rounded-lg space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">
+                        {PRESET_CONFIGURATIONS[selectedPreset as keyof typeof PRESET_CONFIGURATIONS].name}
+                      </span>
+                      <Button variant="ghost" size="sm" onClick={clearPreset} className="h-6 px-2 text-xs">
+                        Clear
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {PRESET_CONFIGURATIONS[selectedPreset as keyof typeof PRESET_CONFIGURATIONS].note}
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      <span className="text-xs text-muted-foreground">Speeds:</span>
+                      {PRESET_CONFIGURATIONS[selectedPreset as keyof typeof PRESET_CONFIGURATIONS].speeds.map((speed, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {speed}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
               {/* Runner Count */}
               <div className="space-y-3">
                 <label className="text-sm font-medium">Number of Runners</label>
@@ -431,7 +566,7 @@ function App() {
             <CardTitle>About the Lonely Runner Conjecture</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3 text-sm text-muted-foreground">
+            <div className="space-y-4 text-sm text-muted-foreground">
               <p>
                 The Lonely Runner Conjecture states that if n runners start at the same point on a circular track and run at different constant speeds, 
                 then each runner will eventually be "lonely" - meaning at some point, their closest neighbor will be at least 1/n of the track away.
@@ -440,8 +575,34 @@ function App() {
                 This conjecture has been proven for n ≤ 7 runners, but remains open for larger values. 
                 The visualization above lets you experiment with different configurations to observe this fascinating mathematical phenomenon.
               </p>
+              
+              <div className="bg-muted/50 p-4 rounded-lg space-y-3">
+                <h4 className="font-medium text-foreground flex items-center gap-2">
+                  <Sparkle size={16} className="text-accent" />
+                  Mathematical Status
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                  <div className="flex justify-between">
+                    <span>n = 2, 3:</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Proven (trivial)</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>n = 4, 5:</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Proven</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>n = 6, 7:</span>
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Proven (complex)</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>n ≥ 8:</span>
+                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Open question</Badge>
+                  </div>
+                </div>
+              </div>
+              
               <p>
-                Try adjusting the speeds and number of runners to see how different configurations affect when runners become lonely!
+                Try the preset configurations above to explore the proven cases, or experiment with your own speeds to see how different configurations affect when runners become lonely!
               </p>
             </div>
           </CardContent>
