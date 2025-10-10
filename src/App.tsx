@@ -275,22 +275,21 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Lonely Runner Conjecture</h1>
-          <p className="text-muted-foreground text-lg">
+    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        <div className="text-center space-y-2 px-4">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">Lonely Runner Conjecture</h1>
+          <p className="text-muted-foreground text-sm md:text-base lg:text-lg max-w-3xl mx-auto">
             Visualizing the mathematical conjecture that runners on a circular track will eventually become "lonely"
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Visualization */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Track Visualization</span>
-                <div className="flex items-center gap-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <span className="text-lg">Track Visualization</span>
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -298,7 +297,7 @@ function App() {
                     className="flex items-center gap-2"
                   >
                     {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                    {isPlaying ? 'Pause' : 'Play'}
+                    <span className="hidden sm:inline">{isPlaying ? 'Pause' : 'Play'}</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -314,18 +313,17 @@ function App() {
                     className="flex items-center gap-2"
                   >
                     <Shuffle size={16} />
-                    Random
+                    <span className="hidden sm:inline">Random</span>
                   </Button>
                 </div>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center" style={{ aspectRatio: '1' }}>
+            <CardContent className="pb-4">
+              <div className="flex items-center justify-center w-full aspect-square max-w-[500px] mx-auto">
                 <svg
                   viewBox="0 0 400 400"
-                  className="w-full h-full max-w-[400px] max-h-[400px]"
+                  className="w-full h-full"
                 >
-                  {/* Track circle */}
                   <circle
                     cx="200"
                     cy="200"
@@ -336,7 +334,6 @@ function App() {
                     className="text-border"
                   />
                   
-                  {/* Center dot */}
                   <circle
                     cx="200"
                     cy="200"
@@ -345,7 +342,6 @@ function App() {
                     className="text-muted-foreground"
                   />
 
-                  {/* Runners */}
                   {runners.map((runner) => {
                     const radian = (runner.angle * Math.PI) / 180
                     const x = 200 + 150 * Math.cos(radian - Math.PI/2)
@@ -353,7 +349,6 @@ function App() {
                     
                     return (
                       <g key={runner.id}>
-                        {/* Lonely indicator ring */}
                         {runner.isLonely && (
                           <circle
                             cx={x}
@@ -366,7 +361,6 @@ function App() {
                           />
                         )}
                         
-                        {/* Runner dot */}
                         <circle
                           cx={x}
                           cy={y}
@@ -376,7 +370,6 @@ function App() {
                           strokeWidth="2"
                         />
                         
-                        {/* Direction indicator for negative speeds */}
                         {runner.speed < 0 && (
                           <path
                             d={`M ${x-3} ${y-1} L ${x+1} ${y-1} L ${x-1} ${y-3} M ${x+1} ${y-1} L ${x-1} ${y+1}`}
@@ -387,7 +380,6 @@ function App() {
                           />
                         )}
                         
-                        {/* Runner ID */}
                         <text
                           x={x}
                           y={runner.speed < 0 ? y + 3 : y + 1}
@@ -403,29 +395,28 @@ function App() {
                 </svg>
               </div>
               
-              <div className="mt-4 text-center space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  Loneliness threshold: <Badge variant="outline">{(lonelinessThreshold * 100).toFixed(1)}%</Badge>
-                </p>
-                <p className="text-sm text-muted-foreground">
+              <div className="mt-4 space-y-2 px-2">
+                <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground">
+                  <span>Threshold:</span>
+                  <Badge variant="outline">{(lonelinessThreshold * 100).toFixed(1)}%</Badge>
+                </div>
+                <p className="text-xs md:text-sm text-muted-foreground text-center max-w-2xl mx-auto">
                   A runner is "lonely" when their closest neighbor is at least {(lonelinessThreshold * 100).toFixed(1)}% of the track away.
                   {runnerCount === 2 
-                    ? " (Adjusted to 1% for n=2 to make loneliness observable)" 
-                    : ` (Theoretical threshold: 1/n = ${(100/runnerCount).toFixed(1)}%)`
+                    ? " (Adjusted to 1% for n=2)" 
+                    : ` (Threshold: 1/n = ${(100/runnerCount).toFixed(1)}%)`
                   }
-                  Negative speeds indicate reverse direction.
                 </p>
               </div>
             </CardContent>
           </Card>
 
-          {/* Statistics Panel */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Loneliness Statistics</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
+          <div className="space-y-4 md:space-y-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Statistics</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Currently lonely:</span>
                   <Badge variant="secondary">
@@ -437,21 +428,23 @@ function App() {
                 
                 <div className="space-y-2">
                   <span className="text-sm font-medium">Individual Times:</span>
-                  {runners.map((runner) => {
-                    const totalTime = runner.totalLonelyTime + (runner.isLonely ? runner.currentLonelyDuration : 0)
-                    return (
-                      <div key={runner.id} className="flex justify-between items-center text-xs">
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: runner.color }}
-                          />
-                          <span>Runner {runner.id + 1}</span>
+                  <div className="space-y-1.5 max-h-[200px] overflow-y-auto pr-1">
+                    {runners.map((runner) => {
+                      const totalTime = runner.totalLonelyTime + (runner.isLonely ? runner.currentLonelyDuration : 0)
+                      return (
+                        <div key={runner.id} className="flex justify-between items-center text-xs">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div 
+                              className="w-2 h-2 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: runner.color }}
+                            />
+                            <span className="truncate">Runner {runner.id + 1}</span>
+                          </div>
+                          <span className="font-mono flex-shrink-0 ml-2">{formatTime(totalTime)}</span>
                         </div>
-                        <span className="font-mono">{formatTime(totalTime)}</span>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
 
                 <Separator />
@@ -464,31 +457,122 @@ function App() {
                     ))}
                   </span>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Controls */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Controls</CardTitle>
+            <Card className="lg:hidden">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Controls</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium flex items-center gap-2">
+                    <Sparkle size={16} className="text-accent" />
+                    Presets
+                  </label>
+                  <Select value={selectedPreset || ""} onValueChange={loadPreset}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Choose configuration..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(PRESET_CONFIGURATIONS).map(([key, config]) => (
+                        <SelectItem key={key} value={key}>
+                          <div className="flex flex-col items-start">
+                            <span className="font-medium text-sm">{config.name}</span>
+                            <span className="text-xs text-muted-foreground">{config.description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  {selectedPreset && (
+                    <div className="bg-muted/30 p-2.5 rounded-lg space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-foreground truncate">
+                          {PRESET_CONFIGURATIONS[selectedPreset as keyof typeof PRESET_CONFIGURATIONS].name}
+                        </span>
+                        <Button variant="ghost" size="sm" onClick={clearPreset} className="h-6 px-2 text-xs flex-shrink-0">
+                          Clear
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-tight">
+                        {PRESET_CONFIGURATIONS[selectedPreset as keyof typeof PRESET_CONFIGURATIONS].note}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Runners</label>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => adjustRunnerCount(-1)}
+                      disabled={runnerCount <= 2}
+                    >
+                      <Minus size={14} />
+                    </Button>
+                    <Badge variant="secondary" className="min-w-[2.5rem] justify-center">
+                      {runnerCount}
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => adjustRunnerCount(1)}
+                      disabled={runnerCount >= 8}
+                    >
+                      <Plus size={14} />
+                    </Button>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium">Animation Speed</label>
+                    <Badge variant="outline" className="text-xs">
+                      {animationSpeed === 0 ? 'Paused' : `${animationSpeed.toFixed(1)}x`}
+                    </Badge>
+                  </div>
+                  <Slider
+                    value={[animationSpeed]}
+                    onValueChange={([value]) => setAnimationSpeed(value)}
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    className="w-full"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+          <Card className="hidden lg:block">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Controls</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Preset Configurations */}
-              <div className="space-y-3">
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   <Sparkle size={16} className="text-accent" />
-                  Mathematical Presets
+                  Presets
                 </label>
                 <Select value={selectedPreset || ""} onValueChange={loadPreset}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a known configuration..." />
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose configuration..." />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(PRESET_CONFIGURATIONS).map(([key, config]) => (
                       <SelectItem key={key} value={key}>
                         <div className="flex flex-col items-start">
-                          <span className="font-medium">{config.name}</span>
+                          <span className="font-medium text-sm">{config.name}</span>
                           <span className="text-xs text-muted-foreground">{config.description}</span>
                         </div>
                       </SelectItem>
@@ -496,37 +580,27 @@ function App() {
                   </SelectContent>
                 </Select>
                 
-                {/* Show current preset info */}
                 {selectedPreset && (
-                  <div className="bg-muted/30 p-3 rounded-lg space-y-2">
+                  <div className="bg-muted/30 p-2.5 rounded-lg space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">
+                      <span className="text-xs font-medium text-foreground truncate">
                         {PRESET_CONFIGURATIONS[selectedPreset as keyof typeof PRESET_CONFIGURATIONS].name}
                       </span>
-                      <Button variant="ghost" size="sm" onClick={clearPreset} className="h-6 px-2 text-xs">
+                      <Button variant="ghost" size="sm" onClick={clearPreset} className="h-6 px-2 text-xs flex-shrink-0">
                         Clear
                       </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground leading-tight">
                       {PRESET_CONFIGURATIONS[selectedPreset as keyof typeof PRESET_CONFIGURATIONS].note}
                     </p>
-                    <div className="flex flex-wrap gap-1">
-                      <span className="text-xs text-muted-foreground">Speeds:</span>
-                      {PRESET_CONFIGURATIONS[selectedPreset as keyof typeof PRESET_CONFIGURATIONS].speeds.map((speed, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {speed}
-                        </Badge>
-                      ))}
-                    </div>
                   </div>
                 )}
               </div>
 
               <Separator />
 
-              {/* Runner Count */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium">Number of Runners</label>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Runners</label>
                 <div className="flex items-center gap-3">
                   <Button
                     variant="outline"
@@ -536,7 +610,7 @@ function App() {
                   >
                     <Minus size={14} />
                   </Button>
-                  <Badge variant="secondary" className="min-w-[2rem] justify-center">
+                  <Badge variant="secondary" className="min-w-[2.5rem] justify-center">
                     {runnerCount}
                   </Badge>
                   <Button
@@ -552,67 +626,58 @@ function App() {
 
               <Separator />
 
-              {/* Animation Speed */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium">Animation Speed</label>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground">Slower</span>
-                    <Badge variant="outline" className="text-xs">
-                      {animationSpeed === 0 ? 'Paused' : `${animationSpeed.toFixed(1)}x`}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">Faster</span>
-                  </div>
-                  <Slider
-                    value={[animationSpeed]}
-                    onValueChange={([value]) => setAnimationSpeed(value)}
-                    min={0}
-                    max={5}
-                    step={0.1}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>0x</span>
-                    <span>1x</span>
-                    <span>5x</span>
-                  </div>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-sm font-medium">Animation Speed</label>
+                  <Badge variant="outline" className="text-xs">
+                    {animationSpeed === 0 ? 'Paused' : `${animationSpeed.toFixed(1)}x`}
+                  </Badge>
                 </div>
+                <Slider
+                  value={[animationSpeed]}
+                  onValueChange={([value]) => setAnimationSpeed(value)}
+                  min={0}
+                  max={5}
+                  step={0.1}
+                  className="w-full"
+                />
               </div>
+            </CardContent>
+          </Card>
 
-              <Separator />
-
-              {/* Speed Controls */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">Runner Speeds</label>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={randomizeSpeeds}
-                    className="flex items-center gap-1 h-7 px-2 text-xs"
-                  >
-                    <Shuffle size={12} />
-                    Randomize
-                  </Button>
-                </div>
+          <Card className="lg:col-span-2">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Runner Speeds</CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={randomizeSpeeds}
+                  className="flex items-center gap-1 h-7 px-2 text-xs"
+                >
+                  <Shuffle size={12} />
+                  Randomize
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2">
                 {runners.map((runner) => (
-                  <div key={runner.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span 
-                        className="text-sm font-medium flex items-center gap-2"
-                      >
+                  <div key={runner.id} className="space-y-2 p-3 rounded-lg border border-border/50 bg-card/50">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
                         <div 
-                          className="w-3 h-3 rounded-full"
+                          className="w-3 h-3 rounded-full flex-shrink-0"
                           style={{ backgroundColor: runner.color }}
                         />
-                        Runner {runner.id + 1}
+                        <span className="text-sm font-medium truncate">Runner {runner.id + 1}</span>
                         {runner.isLonely && (
-                          <Badge variant="default" className="bg-accent text-accent-foreground text-xs">
+                          <Badge variant="default" className="bg-accent text-accent-foreground text-xs flex-shrink-0">
                             LONELY
                           </Badge>
                         )}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
+                      </div>
+                      <Badge variant="outline" className="text-xs flex-shrink-0">
                         {runner.speed >= 0 ? '+' : ''}{runner.speed.toFixed(1)}
                       </Badge>
                     </div>
@@ -624,16 +689,15 @@ function App() {
                       step={0.1}
                       className="w-full"
                     />
-                    {/* Loneliness timing info */}
-                    <div className="text-xs text-muted-foreground space-y-1">
+                    <div className="text-xs text-muted-foreground space-y-0.5">
                       <div className="flex justify-between">
-                        <span>Current lonely:</span>
+                        <span>Current:</span>
                         <span className="font-mono">
                           {runner.isLonely ? formatTime(runner.currentLonelyDuration) : '0.0s'}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Total lonely:</span>
+                        <span>Total:</span>
                         <span className="font-mono">
                           {formatTime(runner.totalLonelyTime + (runner.isLonely ? runner.currentLonelyDuration : 0))}
                         </span>
@@ -646,13 +710,12 @@ function App() {
           </Card>
         </div>
 
-        {/* Information Panel */}
         <Card>
-          <CardHeader>
-            <CardTitle>About the Lonely Runner Conjecture</CardTitle>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">About the Lonely Runner Conjecture</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4 text-sm text-muted-foreground">
+            <div className="space-y-3 text-sm text-muted-foreground">
               <p>
                 The Lonely Runner Conjecture states that if n runners start at the same point on a circular track and run at different constant speeds, 
                 then each runner will eventually be "lonely" - meaning at some point, their closest neighbor will be at least 1/n of the track away.
@@ -663,34 +726,30 @@ function App() {
                 The visualization above lets you experiment with different configurations to observe this fascinating mathematical phenomenon.
               </p>
               
-              <div className="bg-muted/50 p-4 rounded-lg space-y-3">
-                <h4 className="font-medium text-foreground flex items-center gap-2">
+              <div className="bg-muted/50 p-3 md:p-4 rounded-lg space-y-2">
+                <h4 className="font-medium text-foreground flex items-center gap-2 text-sm">
                   <Sparkle size={16} className="text-accent" />
                   Mathematical Status
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                  <div className="flex justify-between">
-                    <span>n = 2, 3:</span>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Proven (trivial)</Badge>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="flex-shrink-0">n = 2, 3:</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex-shrink-0">Proven</Badge>
                   </div>
-                  <div className="flex justify-between">
-                    <span>n = 4, 5:</span>
-                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Proven</Badge>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="flex-shrink-0">n = 4, 5:</span>
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 flex-shrink-0">Proven</Badge>
                   </div>
-                  <div className="flex justify-between">
-                    <span>n = 6, 7:</span>
-                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">Proven (complex)</Badge>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="flex-shrink-0">n = 6, 7:</span>
+                    <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 flex-shrink-0">Proven</Badge>
                   </div>
-                  <div className="flex justify-between">
-                    <span>n ≥ 8:</span>
-                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Open question</Badge>
+                  <div className="flex justify-between items-center gap-2">
+                    <span className="flex-shrink-0">n ≥ 8:</span>
+                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 flex-shrink-0">Open</Badge>
                   </div>
                 </div>
               </div>
-              
-              <p>
-                Try the preset configurations above to explore the proven cases, or experiment with your own speeds to see how different configurations affect when runners become lonely!
-              </p>
             </div>
           </CardContent>
         </Card>
