@@ -110,10 +110,10 @@ function App() {
       })
     }
     setRunners(newRunners)
-    // For n=2, use a much smaller threshold (1%) to make the conjecture observable
+    // For n=2, use 49.5% threshold
     // For all other n, use the theoretical 1/n threshold
     if (runnerCount === 2) {
-      setLonelinessThreshold(0.01) // 1% for n=2
+      setLonelinessThreshold(0.495) // 49.5% for n=2
     } else {
       setLonelinessThreshold(1 / runnerCount) // Theoretical threshold for n>2
     }
@@ -403,7 +403,7 @@ function App() {
                 <p className="text-xs md:text-sm text-muted-foreground text-center max-w-2xl mx-auto">
                   A runner is "lonely" when their closest neighbor is at least {(lonelinessThreshold * 100).toFixed(1)}% of the track away.
                   {runnerCount === 2 
-                    ? " (Adjusted to 1% for n=2)" 
+                    ? " (Adjusted to 49.5% for n=2)" 
                     : ` (Threshold: 1/n = ${(100/runnerCount).toFixed(1)}%)`
                   }
                 </p>
@@ -719,7 +719,7 @@ function App() {
               <p>
                 The Lonely Runner Conjecture states that if n runners start at the same point on a circular track and run at different constant speeds, 
                 then each runner will eventually be "lonely" - meaning at some point, their closest neighbor will be at least 1/n of the track away.
-                For n=2, we use a 1% threshold instead of the theoretical 50% to make loneliness actually observable.
+                For n=2, we use a 49.5% threshold instead of the theoretical 50% to make loneliness actually observable.
               </p>
               <p>
                 This conjecture has been proven for n ≤ 7 runners, but remains open for larger values. 
