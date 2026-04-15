@@ -1,23 +1,60 @@
-# ✨ Welcome to Your Spark Template!
-You've just launched your brand-new Spark Template Codespace — everything’s fired up and ready for you to explore, build, and create with Spark!
+# Lonely Runner Conjecture — Interactive Visualization
 
-This template is your blank canvas. It comes with a minimal setup to help you get started quickly with Spark development.
+An interactive tool that visualizes the [Lonely Runner Conjecture](https://en.wikipedia.org/wiki/Lonely_runner_conjecture) through animated runners moving on a circular track at different speeds.
 
-🚀 What's Inside?
-- A clean, minimal Spark environment
-- Pre-configured for local development
-- Ready to scale with your ideas
-  
-🧠 What Can You Do?
+![React](https://img.shields.io/badge/React-19-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue) ![Vite](https://img.shields.io/badge/Vite-6-purple) ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4-cyan)
 
-Right now, this is just a starting point — the perfect place to begin building and testing your Spark applications.
+## What is the Lonely Runner Conjecture?
 
-🧹 Just Exploring?
-No problem! If you were just checking things out and don’t need to keep this code:
+The conjecture states that if *n* runners start at the same point on a circular track and run at distinct constant speeds, then each runner will eventually be **"lonely"** — at some moment, their closest neighbor is at least 1/*n* of the track away.
 
-- Simply delete your Spark.
-- Everything will be cleaned up — no traces left behind.
+This has been **proven for n ≤ 7** runners but remains an open problem for n ≥ 8.
 
-📄 License For Spark Template Resources 
+## Features
 
-The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
+- **Real-time animation** of 2–8 runners on a circular track at 60 fps
+- **Loneliness detection** with visual highlighting when a runner becomes lonely
+- **Preset configurations** — classic cases (primes, Fibonacci, harmonic series, etc.)
+- **Speed controls** — per-runner sliders from −10× to +10×
+- **Statistics** — track lonely time per runner and collectively
+- **Randomize** speeds to explore new configurations
+- **Responsive** — works on desktop and mobile
+
+## Getting Started
+
+```bash
+# Install dependencies
+npm install
+
+# Start the dev server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview the production build
+npm run preview
+```
+
+## Deploying to GitHub Pages
+
+This repo includes a GitHub Actions workflow that automatically builds and deploys to GitHub Pages on every push to `main`.
+
+1. Push to your GitHub repo
+2. Go to **Settings → Pages**
+3. Under **Source**, select **GitHub Actions**
+4. The next push to `main` will trigger a deploy
+
+Your site will be available at `https://sn2b.github.io/lonely-runner-visual/`.
+
+## Tech Stack
+
+- [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [Vite 6](https://vite.dev/)
+- [Tailwind CSS 4](https://tailwindcss.com/)
+- [Radix UI](https://www.radix-ui.com/) primitives (slider, select, separator)
+- [Phosphor Icons](https://phosphoricons.com/)
+
+## License
+
+[MIT](LICENSE)

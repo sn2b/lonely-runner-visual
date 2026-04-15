@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { useKV } from '@github/spark/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
@@ -85,12 +84,12 @@ const PRESET_CONFIGURATIONS = {
 
 function App() {
   const [isPlaying, setIsPlaying] = useState(false)
-  const [runnerCount, setRunnerCount] = useKV('runner-count', 3)
-  const [runners, setRunners] = useKV('runners', [] as Runner[])
-  const [lonelinessThreshold, setLonelinessThreshold] = useState(1/3)
+  const [runnerCount, setRunnerCount] = useState(3)
+  const [runners, setRunners] = useState<Runner[]>([])
+  const [lonelinessThreshold, setLonelinessThreshold] = useState(1 / 3)
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
-  const [animationSpeed, setAnimationSpeed] = useKV('animation-speed', 1.0)
-  const animationRef = useRef<number>()
+  const [animationSpeed, setAnimationSpeed] = useState(1.0)
+  const animationRef = useRef<number>(0)
   const lastTimeRef = useRef<number>(0)
 
   // Initialize runners when count changes
