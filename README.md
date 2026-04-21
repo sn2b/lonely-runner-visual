@@ -1,6 +1,6 @@
 # Lonely Runner Conjecture — Interactive Visualization
 
-An interactive tool that visualizes the [Lonely Runner Conjecture](https://en.wikipedia.org/wiki/Lonely_runner_conjecture) through animated runners moving on a circular track at different speeds.
+An [interactive tool](https://sn2b.github.io/lonely-runner-visual/) that visualizes the [Lonely Runner Conjecture](https://en.wikipedia.org/wiki/Lonely_runner_conjecture) through animated runners moving on a circular track at different speeds.
 
 ![React](https://img.shields.io/badge/React-19-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue) ![Vite](https://img.shields.io/badge/Vite-6-purple) ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4-cyan)
 
@@ -45,7 +45,7 @@ This repo includes a GitHub Actions workflow that automatically builds and deplo
 3. Under **Source**, select **GitHub Actions**
 4. The next push to `main` will trigger a deploy
 
-Your site will be available at `https://sn2b.github.io/lonely-runner-visual/`.
+This site is available at https://sn2b.github.io/lonely-runner-visual/.
 
 ## Tech Stack
 
